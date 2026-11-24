@@ -1,0 +1,1551 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Consent Game: Navigating Consent & Boundaries</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Plus Jakarta Sans & Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap"
+        rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        display: ['Plus Jakarta Sans', 'sans-serif'],
+                    },
+                    colors: {
+                        warm: {
+                            50: '#FDFBF7',
+                            100: '#F7F3EB',
+                            200: '#EFE6D5',
+                            800: '#3D3730',
+                            900: '#26221E',
+                        },
+                        sage: {
+                            50: '#F2F7F4',
+                            100: '#E1EDE6',
+                            500: '#3B7A57',
+                            600: '#2E6145',
+                            700: '#234B35',
+                        },
+                        terracotta: {
+                            50: '#FCF5F3',
+                            100: '#F8E6E1',
+                            500: '#C85A3B',
+                            600: '#A8472C',
+                        },
+                        amberSoft: {
+                            50: '#FEF9EC',
+                            100: '#FDEFD0',
+                            600: '#B4690E',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            background-color: #FDFBF7;
+            color: #26221E;
+        }
+
+        .fade-in {
+            animation: fadeIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Custom subtle scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #F7F3EB;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #D5CBB8;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #B8AC96;
+        }
+    </style>
+</head>
+
+<body class="min-h-screen flex flex-col antialiased selection:bg-sage-100 selection:text-sage-700">
+
+    <!-- Top Navigation Header -->
+    <header class="sticky top-0 z-30 bg-warm-50/90 backdrop-blur-md border-b border-warm-200/80">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+            <!-- Brand / Cover Page Button -->
+            <button onclick="navigateToCover()" class="flex items-center gap-2.5 text-left group focus:outline-none"
+                title="Return to Cover Page">
+                <div
+                    class="w-9 h-9 rounded-xl bg-sage-500 text-white flex items-center justify-center shadow-sm group-hover:bg-sage-600 transition-colors">
+                    <!-- Compass / Heart Shield SVG Icon -->
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z">
+                        </path>
+                    </svg>
+                </div>
+                <div>
+                    <span class="font-display font-bold text-lg tracking-tight text-warm-900 block leading-none">
+                    </span>
+                    <span class="text-xs text-warm-800/70 font-medium">The Consent Game</span>
+                </div>
+            </button>
+
+            <!-- Right Actions: Scenario Hub Link, Progress Pill & Guide Button -->
+            <div class="flex items-center gap-2 sm:gap-3">
+                <button id="header-scenarios-btn" onclick="navigateToMenu()"
+                    class="hidden px-3 py-1.5 rounded-xl text-xs sm:text-sm font-medium text-warm-800 hover:bg-warm-100 transition-colors">
+                    Scenarios
+                </button>
+
+                <div id="header-progress-badge"
+                    class="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-warm-100 border border-warm-200 text-xs font-medium text-warm-800">
+                    <span class="w-2 h-2 rounded-full bg-sage-500"></span>
+                    <span id="header-progress-text">0/5 Passed</span>
+                </div>
+
+                <button onclick="openGuideModal()"
+                    class="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white hover:bg-warm-100 text-warm-900 border border-warm-200 shadow-xs text-sm font-medium transition-all active:scale-95">
+                    <svg class="w-4 h-4 text-sage-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253">
+                        </path>
+                    </svg>
+                    <span>Consent Guide</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Dynamic View Container -->
+    <main id="app-container" class="flex-1 max-w-4xl w-full mx-auto px-4 sm:px-6 py-8 sm:py-12">
+        <!-- Content rendered dynamically via JS -->
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-warm-200/70 bg-warm-100/50 py-6 mt-auto">
+        <div
+            class="max-w-4xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-warm-800/70">
+            <p>Interactive Educational Experience • Built to practice healthy communication & FRIES consent.</p>
+            <button onclick="resetAllProgress()"
+                class="text-warm-800/60 hover:text-terracotta-600 underline transition-colors">
+                Reset Progress
+            </button>
+        </div>
+    </footer>
+
+    <!-- Consent Principles Guide Modal -->
+    <div id="guide-modal"
+        class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-warm-900/50 backdrop-blur-xs transition-opacity"
+        role="dialog" aria-modal="true" aria-labelledby="modal-title">
+        <div
+            class="bg-white rounded-2xl max-w-2xl w-full max-h-[88vh] flex flex-col shadow-2xl border border-warm-200 overflow-hidden fade-in">
+            <!-- Modal Header -->
+            <div class="px-6 py-4 bg-warm-100/80 border-b border-warm-200 flex items-center justify-between">
+                <div class="flex items-center gap-2.5">
+                    <div
+                        class="w-8 h-8 rounded-lg bg-sage-100 text-sage-700 flex items-center justify-center font-bold">
+                        F
+                    </div>
+                    <div>
+                        <h2 id="modal-title" class="font-display font-bold text-lg text-warm-900">Consent Principles
+                            Guide</h2>
+                        <p class="text-xs text-warm-800/75">The FRIES Framework & Healthy Communication</p>
+                    </div>
+                </div>
+                <button onclick="closeGuideModal()"
+                    class="p-2 rounded-lg text-warm-800/70 hover:bg-warm-200/60 hover:text-warm-900 transition-colors"
+                    aria-label="Close modal">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
+                        </path>
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Modal Scrollable Content -->
+            <div class="p-6 overflow-y-auto space-y-6 text-sm text-warm-800 leading-relaxed">
+                <p class="text-base text-warm-900 font-medium">
+                    Consent is an ongoing, mutual agreement between people. Whether in romance, friendships, or digital
+                    spaces, healthy consent follows the <strong>FRIES</strong> model:
+                </p>
+
+                <!-- FRIES Cards Grid -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                    <div class="p-4 rounded-xl bg-sage-50 border border-sage-100">
+                        <div class="font-display font-bold text-sage-700 text-base mb-1">F: Freely Given</div>
+                        <p class="text-xs text-warm-800/90">Made without pressure, guilt-tripping, manipulation, or the
+                            influence of alcohol or drugs. Silence or hesitation is not a "yes."</p>
+                    </div>
+                    <div class="p-4 rounded-xl bg-sage-50 border border-sage-100">
+                        <div class="font-display font-bold text-sage-700 text-base mb-1">R: Reversible</div>
+                        <p class="text-xs text-warm-800/90">Anyone can change their mind at any time, even in the middle
+                            of an activity or after saying yes earlier.</p>
+                    </div>
+                    <div class="p-4 rounded-xl bg-sage-50 border border-sage-100">
+                        <div class="font-display font-bold text-sage-700 text-base mb-1">I: Informed</div>
+                        <p class="text-xs text-warm-800/90">You can only consent when you have the full picture, such as
+                            knowing who will see a photo or what boundaries exist around intimacy.</p>
+                    </div>
+                    <div class="p-4 rounded-xl bg-sage-50 border border-sage-100">
+                        <div class="font-display font-bold text-sage-700 text-base mb-1">E: Enthusiastic</div>
+                        <p class="text-xs text-warm-800/90">Look for active excitement and clear body language ("I'd
+                            love to!"), rather than reluctant compliance ("I guess...").</p>
+                    </div>
+                    <div class="p-4 rounded-xl bg-sage-50 border border-sage-100 sm:col-span-2">
+                        <div class="font-display font-bold text-sage-700 text-base mb-1">S: Specific</div>
+                        <p class="text-xs text-warm-800/90">Saying "yes" to one thing, like coming inside for a movie or
+                            taking a photo together, does not automatically mean "yes" to anything else.</p>
+                    </div>
+                </div>
+
+                <!-- Practical Takeaways -->
+                <div class="border-t border-warm-200 pt-5 space-y-3">
+                    <h3 class="font-display font-bold text-warm-900 text-base">Practical Communication Habits</h3>
+                    <ul class="space-y-2.5 text-xs sm:text-sm">
+                        <li class="flex items-start gap-2.5">
+                            <span class="text-sage-600 font-bold mt-0.5">✓</span>
+                            <span><strong>Read non-verbal cues:</strong> Pulling back, stiffening up, avoiding eye
+                                contact, or going quiet are signals to pause and check in gently.</span>
+                        </li>
+                        <li class="flex items-start gap-2.5">
+                            <span class="text-sage-600 font-bold mt-0.5">✓</span>
+                            <span><strong>Make "No" easy to say:</strong> Frame questions so the other person feels zero
+                                pressure (e.g., <em>"No worries at all if you're tired!"</em>).</span>
+                        </li>
+                        <li class="flex items-start gap-2.5">
+                            <span class="text-sage-600 font-bold mt-0.5">✓</span>
+                            <span><strong>Receive boundaries with grace:</strong> Thanking someone for sharing their
+                                boundary builds deep trust and emotional safety.</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Modal Footer -->
+            <div class="px-6 py-3.5 bg-warm-50 border-t border-warm-200 flex justify-end">
+                <button onclick="closeGuideModal()"
+                    class="px-5 py-2.5 rounded-xl bg-sage-600 hover:bg-sage-700 text-white text-sm font-semibold shadow-xs transition-colors">
+                    Got it, back to story
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Application Logic & Rich Scenario Data -->
+    <script>
+        /**
+         * SCENARIO DATA STRUCTURE
+         * Each scenario has:
+         * - id, title, subtitle, category, duration, themeColor, iconSvg
+         * - nodes: dictionary of story steps.
+         *   Each node has:
+         *   - context: Scene setting description
+         *   - speaker: Optional character name speaking
+         *   - dialogue: Optional spoken line
+         *   - cue: Optional non-verbal cue highlight
+         *   - choices: Array of choice objects { text, nextNodeId, quality ('great'|'nuanced'|'poor'), principle, feedback }
+         *   - isEnding: Boolean if terminal node
+         *   - endingType: 'thriving' | 'learning'
+         *   - endingSummary: Key takeaway for this ending
+         */
+        const SCENARIOS = [
+            {
+                id: 'romantic',
+                title: 'Movie Night & Mixed Signals',
+                subtitle: 'Navigating physical intimacy, reading body language, and checking in enthusiastically.',
+                category: 'Romantic & Intimate',
+                duration: '3 min',
+                badgeColor: 'bg-terracotta-100 text-terracotta-600',
+                iconSvg: `<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path></svg>`,
+                startNode: 'r1',
+                nodes: {
+                    r1: {
+                        context: "You and Maya have been on three great dates. Tonight, she invited you over to watch a movie on her couch. Halfway through, you put your arm around her and lean in to kiss her. She kisses you back briefly, then turns her head toward the TV and pulls her knees up to her chest.",
+                        speaker: "Maya",
+                        dialogue: "“Oh, this is my favorite part of the movie...”",
+                        cue: "Non-verbal cue: Maya tucks her knees in, creating physical distance, and shifts her focus back to the screen.",
+                        choices: [
+                            {
+                                text: "Pause, give her a little space, and check in warmly: “Hey, how are you feeling right now? Happy just watching the movie too.”",
+                                nextNodeId: 'r2_good',
+                                quality: 'great',
+                                principle: 'Enthusiastic & Ongoing Consent',
+                                feedback: "Spot on! You noticed her non-verbal shift (pulling knees up and looking away) and lowered the pressure by explicitly making 'just watching the movie' completely okay."
+                            },
+                            {
+                                text: "Wait two minutes and lean in to kiss her again. She kissed back at first, so she probably just got distracted.",
+                                nextNodeId: 'r2_pushy',
+                                quality: 'poor',
+                                principle: 'Specific & Reversible Consent',
+                                feedback: "Consent is reversible moment-to-moment. A kiss earlier doesn't mean an automatic yes two minutes later, especially when body language signals hesitation."
+                            },
+                            {
+                                text: "Ask quietly: “Is it okay if I kiss you?” without changing your posture or leaning back.",
+                                nextNodeId: 'r2_nuanced',
+                                quality: 'nuanced',
+                                principle: 'Freely Given Consent',
+                                feedback: "Asking verbally is great! However, staying leaned in close can sometimes make it feel awkward for someone to say 'no.' Giving physical breathing room helps make a 'no' truly easy."
+                            }
+                        ]
+                    },
+                    r2_good: {
+                        context: "Maya visibly relaxes her shoulders and smiles at you with relief.",
+                        speaker: "Maya",
+                        dialogue: "“Honestly, thank you for asking. I really like you, I've just had a super exhausting week and want to take physical stuff slow tonight. Cuddling and watching the movie sounds amazing though.”",
+                        cue: "Non-verbal cue: She leans her head against your shoulder, clearly comfortable now that her boundary is respected.",
+                        choices: [
+                            {
+                                text: "“I’m so glad you told me! Let's just relax and enjoy the movie.”",
+                                nextNodeId: 'r_end_thriving',
+                                quality: 'great',
+                                principle: 'Freely Given & Specific',
+                                feedback: "Validating her honesty reinforces emotional safety. You respected the specific boundary (cuddling yes, kissing/more no) with zero guilt."
+                            },
+                            {
+                                text: "“No problem at all. Just let me know if you change your mind later tonight!”",
+                                nextNodeId: 'r_end_good_alt',
+                                quality: 'nuanced',
+                                principle: 'Reversible Consent',
+                                feedback: "Polite and respectful, though adding 'if you change your mind later tonight' can subtly keep the expectation alive. Simply accepting the boundary as-is feels even more relaxing."
+                            }
+                        ]
+                    },
+                    r2_nuanced: {
+                        context: "Maya hesitates for a second, glancing at how close you are before answering gently.",
+                        speaker: "Maya",
+                        dialogue: "“Um, I actually kind of want to take things slow tonight. I’m pretty tired from work.”",
+                        cue: "Non-verbal cue: She looks slightly nervous about disappointing you.",
+                        choices: [
+                            {
+                                text: "Smile warmly, sit back comfortably, and say: “Totally fair! Thanks for telling me. Let’s just enjoy the movie.”",
+                                nextNodeId: 'r_end_thriving',
+                                quality: 'great',
+                                principle: 'Receiving Boundaries Gracefully',
+                                feedback: "Wonderful recovery! By sitting back and thanking her, you immediately dissolved any awkwardness and showed that her comfort matters most."
+                            },
+                            {
+                                text: "Sigh a little and say: “Oh, okay... I just thought since you invited me over you were into me.”",
+                                nextNodeId: 'r_end_learning',
+                                quality: 'poor',
+                                principle: 'Freely Given (No Guilt-Tripping)',
+                                feedback: "Inviting someone over to watch a movie is only consent to hang out, not a promise of physical intimacy. Guilt-tripping undermines trust and pressures the other person."
+                            }
+                        ]
+                    },
+                    r2_pushy: {
+                        context: "As you lean in again, Maya stiffens and gently puts a hand on your chest to stop you.",
+                        speaker: "Maya",
+                        dialogue: "“Hey, hold on. I’m really tired tonight and don’t want to make out right now.”",
+                        cue: "Non-verbal cue: Clear verbal and physical boundary.",
+                        choices: [
+                            {
+                                text: "Immediately step back, apologize sincerely without getting defensive: “I’m so sorry for misreading that. Thank you for telling me, I’ll give you space.”",
+                                nextNodeId: 'r_end_good_alt',
+                                quality: 'great',
+                                principle: 'Reversible & Accountable',
+                                feedback: "When we misread a cue, the healthiest response is immediate respect and a calm, non-defensive apology."
+                            },
+                            {
+                                text: "Say: “Whoa, relax, you don’t have to make it weird. I was just trying to be romantic.”",
+                                nextNodeId: 'r_end_learning',
+                                quality: 'poor',
+                                principle: 'Respecting Boundaries',
+                                feedback: "Getting defensive shifts the emotional burden onto the person who set a boundary. Everyone has the right to say 'stop' at any moment."
+                            }
+                        ]
+                    },
+                    r_end_thriving: {
+                        isEnding: true,
+                        endingType: 'thriving',
+                        context: "You and Maya spend the rest of the evening laughing at the movie and talking comfortably. Before you leave, she texts you saying she had the best night and can't wait to see you again.",
+                        endingSummary: "By paying attention to subtle non-verbal cues and checking in without pressure, you created an environment where enthusiastic, freely given consent can thrive."
+                    },
+                    r_end_good_alt: {
+                        isEnding: true,
+                        endingType: 'thriving',
+                        context: "The tension melts away, and the two of you enjoy the rest of the movie comfortably. Listening when it mattered most preserved trust between you.",
+                        endingSummary: "Even when initial signals are tricky, pausing, listening actively, and respecting a boundary without defensiveness keeps communication healthy."
+                    },
+                    r_end_learning: {
+                        isEnding: true,
+                        endingType: 'learning',
+                        context: "The rest of the evening feels tense and quiet, and Maya cuts the night short shortly after. When someone feels pressured or dismissed after expressing a boundary, intimacy and trust shut down.",
+                        endingSummary: "Remember: Consent is specific (inviting someone over ≠ physical intimacy) and must be freely given without guilt or defensiveness. Try replaying to see how a warm check-in changes the night!"
+                    }
+                }
+            },
+            {
+                id: 'social',
+                title: 'Friday Night House Party',
+                subtitle: 'Navigating peer pressure, alcohol, checking in on a friend, and respecting a "no."',
+                category: 'Social & Party Boundaries',
+                duration: '3 min',
+                badgeColor: 'bg-amberSoft-100 text-amberSoft-600',
+                iconSvg: `<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>`,
+                startNode: 's1',
+                nodes: {
+                    s1: {
+                        context: "You’re at a lively house party with your close friend Jordan. A group in the kitchen starts pouring shots and chanting for everyone to join in. Jordan holds a hand up and shakes their head.",
+                        speaker: "Jordan",
+                        dialogue: "“I’m good, thanks! Just sticking to soda tonight.”",
+                        cue: "Social dynamic: Someone in the group says, “Come on, don't be boring! Just take one!” and looks at you to back them up.",
+                        choices: [
+                            {
+                                text: "Back Jordan up casually: “They said they’re good! More for the rest of you. Pass me a soda too, Jordan.”",
+                                nextNodeId: 's2_ally',
+                                quality: 'great',
+                                principle: 'Freely Given (Supporting Autonomy)',
+                                feedback: "Being an active ally takes the social spotlight off Jordan and normalizes saying 'no' without needing an excuse."
+                            },
+                            {
+                                text: "Say to Jordan: “Come on, just one! We haven't hung out in forever, live a little!”",
+                                nextNodeId: 's2_pressure',
+                                quality: 'poor',
+                                principle: 'Freely Given Consent',
+                                feedback: "Even friendly peer pressure makes it harder for someone to stick to their personal boundaries around alcohol or substances."
+                            },
+                            {
+                                text: "Stay quiet and grab a drink yourself without saying anything.",
+                                nextNodeId: 's2_neutral',
+                                quality: 'nuanced',
+                                principle: 'Bystander Awareness',
+                                feedback: "Not pressuring Jordan is good, though stepping in briefly as a friend helps shut down group peer pressure much faster."
+                            }
+                        ]
+                    },
+                    s2_ally: {
+                        context: "The group moves on immediately, and Jordan gives you a grateful nod. Later in the evening, you notice someone you barely know trying to steer a very tipsy acquaintance, Sam, toward the front door.",
+                        speaker: "Acquaintance",
+                        dialogue: "“Hey, I’m gonna take Sam back to my place, they’re pretty tired.”",
+                        cue: "Non-verbal cue: Sam is slurring their words slightly and leaning heavily against the wall, looking confused.",
+                        choices: [
+                            {
+                                text: "Step in warmly: “Actually, Sam came with our group and we’re already giving them a ride home. Thanks though! Come sit down, Sam.”",
+                                nextNodeId: 's_end_thriving',
+                                quality: 'great',
+                                principle: 'Informed & Incapacitation Awareness',
+                                feedback: "Crucial intervention! Someone who is intoxicated cannot give informed, freely given consent. Looking out for friends and peers keeps everyone safe."
+                            },
+                            {
+                                text: "Ask Sam directly while the stranger stands right there: “Sam, do you want to go with them?”",
+                                nextNodeId: 's2_sam_nuanced',
+                                quality: 'nuanced',
+                                principle: 'Informed Consent',
+                                feedback: "Checking in with Sam is the right instinct, though when someone is visibly intoxicated and a stranger is standing right over them, it's safer to separate them first and check in privately."
+                            }
+                        ]
+                    },
+                    s2_pressure: {
+                        context: "Jordan looks uncomfortable and repeats firmly, “No really, I’m driving tonight and I don't want to drink.”",
+                        speaker: "Jordan",
+                        dialogue: "“Please drop it, okay?”",
+                        choices: [
+                            {
+                                text: "Apologize immediately: “You’re totally right, my bad for pushing. Let’s go grab some food in the other room.”",
+                                nextNodeId: 's_end_good_alt',
+                                quality: 'great',
+                                principle: 'Respecting Boundaries',
+                                feedback: "Owning up right away and changing the subject respects Jordan's 'no' without making them defend their choice."
+                            },
+                            {
+                                text: "Say: “Jeez, okay, no need to get so serious about it.”",
+                                nextNodeId: 's_end_learning',
+                                quality: 'poor',
+                                principle: 'Freely Given Consent',
+                                feedback: "Calling someone 'too serious' after they had to repeat a boundary penalizes them for saying no."
+                            }
+                        ]
+                    },
+                    s2_neutral: {
+                        context: "Jordan eventually walks away from the kitchen looking a little drained from having to say 'no' three times. Later, Jordan says they're thinking of heading home early.",
+                        speaker: "Jordan",
+                        dialogue: "“Hey, I’m pretty wiped out. Mind if I head out?”",
+                        choices: [
+                            {
+                                text: "“Not at all! Text me when you get home safe so I know you made it.”",
+                                nextNodeId: 's_end_good_alt',
+                                quality: 'great',
+                                principle: 'Reversible & Supportive',
+                                feedback: "Respecting a friend's social battery and checking in on their safe arrival is top-tier friendship."
+                            },
+                            {
+                                text: "“Already? We just got here, stay at least another hour!”",
+                                nextNodeId: 's_end_learning',
+                                quality: 'poor',
+                                principle: 'Reversible Consent',
+                                feedback: "Plans and social energy are reversible—everyone gets to decide when they're ready to leave."
+                            }
+                        ]
+                    },
+                    s2_sam_nuanced: {
+                        context: "Sam blinks slowly and mumbles, “Uh, I don't know where my coat is...”",
+                        choices: [
+                            {
+                                text: "Take Sam’s arm gently: “Let’s go find your coat together and get you some water. We’ll make sure you get home safe.”",
+                                nextNodeId: 's_end_thriving',
+                                quality: 'great',
+                                principle: 'Informed Consent & Safety',
+                                feedback: "Great follow-through. You recognized Sam wasn't in a state to make clear decisions and stepped in calmly."
+                            }
+                        ]
+                    },
+                    s_end_thriving: {
+                        isEnding: true,
+                        endingType: 'thriving',
+                        context: "You help Sam get water and a safe ride home with friends, and Jordan thanks you the next day for having their back at the party.",
+                        endingSummary: "Healthy consent culture isn't just one-on-one. It's also how we support friends' choices in social spaces and look out for people who aren't sober enough to consent."
+                    },
+                    s_end_thriving: {
+                        isEnding: true,
+                        endingType: 'thriving',
+                        context: "You help Sam get water and a safe ride home with friends, and Jordan thanks you the next day for having their back at the party.",
+                        endingSummary: "Healthy consent culture isn't just one-on-one—it's how we support friends' choices in social spaces and look out for people who aren't sober enough to consent."
+                    },
+                    s_end_good_alt: {
+                        isEnding: true,
+                        endingType: 'thriving',
+                        context: "Jordan appreciates that you respected their limits without making a fuss. Good friendships thrive when 'no' is always a complete sentence.",
+                        endingSummary: "Respecting a friend's 'no' around drinking, socializing, or leaving early builds lasting trust."
+                    },
+                    s_end_learning: {
+                        isEnding: true,
+                        endingType: 'learning',
+                        context: "Jordan heads home feeling frustrated that their boundaries weren't respected tonight. Social pressure often disguises itself as 'just having fun,' even when it crosses someone's comfort zone.",
+                        endingSummary: "Everyone deserves to decide what goes into their body and how long they stay at an event without guilt or pushback."
+                    }
+                }
+            },
+            {
+                id: 'digital',
+                title: 'Group Chat & Candid Photos',
+                subtitle: 'Navigating digital consent, sharing photos online, and respecting personal privacy.',
+                category: 'Everyday & Digital Consent',
+                duration: '2 min',
+                badgeColor: 'bg-sage-100 text-sage-700',
+                iconSvg: `<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>`,
+                startNode: 'd1',
+                nodes: {
+                    d1: {
+                        context: "After a fun afternoon at the park with your coworker Leo, you’re looking through photos on your phone. You have a hilarious candid shot of Leo mid-sneeze next to a pigeon, plus a great selfie of the two of you smiling.",
+                        speaker: "Your Thought",
+                        dialogue: "“This candid photo would get so many laughs in our team Slack channel, and the selfie is awesome for Instagram!”",
+                        cue: "Digital consideration: Leo hasn't seen either photo yet.",
+                        choices: [
+                            {
+                                text: "Show Leo both photos first and ask: “Hey, mind if I post this selfie on Instagram? Also, keeping the sneeze pic just between us unless you say otherwise!”",
+                                nextNodeId: 'd2_ask',
+                                quality: 'great',
+                                principle: 'Informed & Specific Digital Consent',
+                                feedback: "Excellent! Being specific about *which* photo and *where* it will be shared gives Leo real control over their digital footprint."
+                            },
+                            {
+                                text: "Post the candid sneeze photo in the work chat right away. It’s just harmless fun and everyone likes Leo.",
+                                nextNodeId: 'd2_posted',
+                                quality: 'poor',
+                                principle: 'Informed Consent',
+                                feedback: "Posting photos of someone, especially unflattering ones in a professional setting, without asking removes their informed consent."
+                            },
+                            {
+                                text: "Post the smiling selfie on Instagram without asking since Leo clearly smiled for the camera.",
+                                nextNodeId: 'd2_selfie_only',
+                                quality: 'nuanced',
+                                principle: 'Specific Consent',
+                                feedback: "Posing for a photo is consent to take the picture, not necessarily consent to broadcast it publicly online (some people keep their profiles private or avoid certain platforms)."
+                            }
+                        ]
+                    },
+                    d2_ask: {
+                        context: "Leo laughs out loud looking at your phone screen.",
+                        speaker: "Leo",
+                        dialogue: "“Haha oh man, definitely keep the sneeze one off Slack! The selfie looks great though. Feel free to post that one, just don’t tag my last name since I keep my work and personal accounts separate.”",
+                        choices: [
+                            {
+                                text: "“You got it! No last name tag, and the pigeon photo stays in the vault.”",
+                                nextNodeId: 'd_end_thriving',
+                                quality: 'great',
+                                principle: 'Specific Boundaries',
+                                feedback: "Following the exact parameters Leo set (post the photo, omit the last name tag) honors specific consent."
+                            }
+                        ]
+                    },
+                    d2_posted: {
+                        context: "Ten minutes later, Leo walks over to your desk looking visibly embarrassed.",
+                        speaker: "Leo",
+                        dialogue: "“Hey... I saw the photo in the team channel. Our manager is in that chat, and I really prefer keeping silly stuff off work channels. Could you please delete it?”",
+                        choices: [
+                            {
+                                text: "Delete it immediately and apologize: “I’m so sorry, Leo. I didn't think about who was in the channel. Deleted right now, and I’ll always ask first next time.”",
+                                nextNodeId: 'd_end_good_alt',
+                                quality: 'great',
+                                principle: 'Reversible & Accountable',
+                                feedback: "Taking it down right away without arguing or calling Leo 'too sensitive' repairs trust quickly."
+                            },
+                            {
+                                text: "Say: “Aw come on, everyone thought it was funny! Leave it up for a bit.”",
+                                nextNodeId: 'd_end_learning',
+                                quality: 'poor',
+                                principle: 'Respecting Boundaries',
+                                feedback: "Refusing to delete a photo of someone when they ask violates their personal and digital autonomy."
+                            }
+                        ]
+                    },
+                    d2_selfie_only: {
+                        context: "Later that afternoon, Leo sees the Instagram post and messages you.",
+                        speaker: "Leo",
+                        dialogue: "“Hey! Super fun hanging out today. Quick favor: could you untag my handle on that post? I’m trying to keep my profile low-key right now.”",
+                        choices: [
+                            {
+                                text: "“Of course! Untagged just now. Thanks for letting me know.”",
+                                nextNodeId: 'd_end_good_alt',
+                                quality: 'great',
+                                principle: 'Reversible Consent',
+                                feedback: "Easy, kind, and drama-free! Treating digital boundaries as normal keeps friendships effortless."
+                            },
+                            {
+                                text: "“Why? It’s a really good picture of you!”",
+                                nextNodeId: 'd_end_learning',
+                                quality: 'poor',
+                                principle: 'Freely Given Consent',
+                                feedback: "Someone doesn't need to justify why they want privacy online. Respecting the request without pushback is key."
+                            }
+                        ]
+                    },
+                    d_end_thriving: {
+                        isEnding: true,
+                        endingType: 'thriving',
+                        context: "Leo shares the post to their close friends story and thanks you for being so thoughtful about privacy. Checking in took five seconds and made everyone feel comfortable.",
+                        endingSummary: "Digital consent is everyday consent: asking before posting, tagging, or forwarding messages shows deep respect for others' privacy."
+                    },
+                    d_end_good_alt: {
+                        isEnding: true,
+                        endingType: 'thriving',
+                        context: "Because you responded promptly and respectfully when Leo spoke up, there's zero awkwardness between you two.",
+                        endingSummary: "When someone asks to untag or remove content involving them, acting quickly without defensiveness shows true respect."
+                    },
+                    d_end_learning: {
+                        isEnding: true,
+                        endingType: 'learning',
+                        context: "Leo feels hesitant about taking photos together in the future. Respecting digital boundaries, like what gets shared and where, is just as important as physical boundaries.",
+                        endingSummary: "Consent to take a photo isn't automatic consent to share it everywhere. Always ask first, and honor requests to remove content immediately."
+                    }
+                }
+            },
+            {
+                id: 'sexual_consent',
+                title: 'Escalating Intimacy & Shifting Cues',
+                subtitle: 'Harder: Starts with an enthusiastic "yes," then tests escalating sexual intimacy, freeze cues, and reversible boundaries.',
+                category: 'Sexual Consent • Advanced',
+                difficulty: 'Harder',
+                duration: '4 min',
+                badgeColor: 'bg-terracotta-100 text-terracotta-600',
+                iconSvg: `<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>`,
+                startNode: 'sx1',
+                nodes: {
+                    sx1: {
+                        context: "You and your partner Alex are in your bedroom. Earlier, you both enthusiastically agreed to hook up, kissing and touching over clothes, and things have been warm and mutual. Now, you want to move things further by taking off clothes and escalating to sex.",
+                        speaker: "Alex",
+                        dialogue: "“I’m having such a good time with you...”",
+                        cue: "Baseline context: Initial consent was enthusiastically given for making out, and now the level of sexual intimacy is about to escalate.",
+                        choices: [
+                            {
+                                text: "Pause briefly, maintain eye contact, and check in naturally: “Me too. I’d love to take our clothes off and go further. How are you feeling about that?”",
+                                nextNodeId: 'sx2_checked',
+                                quality: 'great',
+                                principle: 'Specific & Ongoing Sexual Consent',
+                                feedback: "Yes! Consent is specific. Saying 'yes' to making out does not automatically mean 'yes' to undressing or penetrative sex. Checking in naturally keeps intimacy connected and safe."
+                            },
+                            {
+                                text: "Start unbuttoning Alex’s shirt without asking. Alex already said yes to hooking up tonight, and they can always push your hand away if they don’t want to.",
+                                nextNodeId: 'sx2_assumed',
+                                quality: 'poor',
+                                principle: 'Specific Consent (Not Assumed)',
+                                feedback: "Relying on someone to physically stop you puts the burden on them and ignores that consent is specific to each new step of sexual intimacy."
+                            },
+                            {
+                                text: "Whisper while continuing to kiss their neck: “You want to keep going, right?” without pausing to hear a full answer.",
+                                nextNodeId: 'sx2_rushed',
+                                quality: 'nuanced',
+                                principle: 'Enthusiastic & Freely Given',
+                                feedback: "Asking is better than assuming, but asking a leading question ('right?') while not pausing makes it hard for a partner to process or say 'not yet.'"
+                            }
+                        ]
+                    },
+                    sx2_checked: {
+                        context: "Alex smiles and says, “Yes, I’d really like that.” You both undress and continue being intimate. A few minutes later, as things get more intense, you notice Alex suddenly goes very quiet, stops kissing back, and their shoulders stiffen up.",
+                        speaker: "Alex",
+                        dialogue: "“...” (Alex stares toward the ceiling, breathing shallowly, not moving.)",
+                        cue: "Critical cue: Even though Alex enthusiastically consented minutes ago, their body has gone rigid and silent (a common 'freeze' or sudden overwhelm response).",
+                        choices: [
+                            {
+                                text: "Stop moving right away, gently pull back a little so they have space, and ask softly: “Hey, I noticed you got quiet. Do you want to pause or stop? Zero pressure at all.”",
+                                nextNodeId: 'sx3_paused',
+                                quality: 'great',
+                                principle: 'Reversible Consent & Reading Freeze Cues',
+                                feedback: "Crucial awareness! Consent is 100% reversible at any second, even mid-act. Silence or freezing is never ongoing consent, so pausing immediately shows deep care."
+                            },
+                            {
+                                text: "Keep going gently for another minute. Alex explicitly said yes just two minutes ago, so they’re probably just caught up in the moment.",
+                                nextNodeId: 'sx3_ignored',
+                                quality: 'poor',
+                                principle: 'Reversible Consent (Active Participation)',
+                                feedback: "Past consent, even from two minutes ago, does not override present silence or tension. Continuing when a partner freezes crosses a major sexual boundary."
+                            },
+                            {
+                                text: "Keep your weight over Alex and ask: “Are you okay? Should I finish or keep going?”",
+                                nextNodeId: 'sx3_pressured',
+                                quality: 'nuanced',
+                                principle: 'Freely Given (Removing Pressure)',
+                                feedback: "Checking in is important, but asking 'should I finish?' while staying physically on top of them creates subtle pressure to let you finish rather than stopping freely."
+                            }
+                        ]
+                    },
+                    sx2_assumed: {
+                        context: "As you start unbuttoning Alex’s shirt, Alex’s hands freeze at their sides and they look startled, pulling back slightly against the pillows.",
+                        speaker: "Alex",
+                        dialogue: "“Whoa, hold on. I didn’t mean we were going all the way tonight.”",
+                        cue: "Boundary signal: Alex consented to making out, not to undressing or sex.",
+                        choices: [
+                            {
+                                text: "Stop immediately, pull your hands back, and say calmly: “I’m so sorry for jumping ahead without asking. Thank you for telling me. We don’t have to do anything you’re not ready for.”",
+                                nextNodeId: 'sx_end_recovered',
+                                quality: 'great',
+                                principle: 'Specific & Accountable',
+                                feedback: "Stopping the instant a boundary is voiced, with zero defensiveness or sulking, is essential when a boundary was misread."
+                            },
+                            {
+                                text: "Say: “Sorry, I just figured since we were already hooking up that’s where things were going. Are you sure you don’t want to?”",
+                                nextNodeId: 'sx_end_learning',
+                                quality: 'poor',
+                                principle: 'Specific & Freely Given',
+                                feedback: "Asking 'are you sure?' after someone just stated a boundary pressures them to reconsider their 'no.' Making out is never an automatic agreement to sex."
+                            }
+                        ]
+                    },
+                    sx2_rushed: {
+                        context: "Alex murmurs a hesitant “Uh, yeah, sure...” while their body stiffens slightly as things escalate.",
+                        speaker: "Alex",
+                        dialogue: "“Actually... wait a second.”",
+                        cue: "Non-verbal + verbal cue: Reluctant 'yeah, sure' followed by hesitation.",
+                        choices: [
+                            {
+                                text: "Stop right away and sit back comfortably: “Let’s pause! Take all the time you need. We can totally just cuddle or talk.”",
+                                nextNodeId: 'sx3_paused',
+                                quality: 'great',
+                                principle: 'Enthusiastic & Reversible',
+                                feedback: "Recognizing that a hesitant 'yeah, sure' isn't enthusiastic consent, and pausing happily, turns a tense moment into real trust."
+                            },
+                            {
+                                text: "Say: “What’s wrong? You literally just said yes.”",
+                                nextNodeId: 'sx_end_learning',
+                                quality: 'poor',
+                                principle: 'Reversible Consent',
+                                feedback: "People are allowed to change their minds at any moment without needing to justify or defend why."
+                            }
+                        ]
+                    },
+                    sx3_paused: {
+                        context: "Alex lets out a shaky breath and looks at you with genuine relief, pulling the blanket up around their shoulders.",
+                        speaker: "Alex",
+                        dialogue: "“Thank you for stopping. I thought I was ready, and I really like you, I just suddenly felt overwhelmed and needed to stop.”",
+                        choices: [
+                            {
+                                text: "“You never have to apologize for changing your mind. I’m really glad you felt safe pausing. Want some water, or just to lie here and talk?”",
+                                nextNodeId: 'sx_end_thriving',
+                                quality: 'great',
+                                principle: 'Reversible & Emotionally Safe',
+                                feedback: "Textbook healthy communication. Reassuring a partner that changing their mind is completely normal makes future intimacy far more trusting and authentic."
+                            },
+                            {
+                                text: "“It’s totally fine, I’m not mad. Just let me know if you feel up for trying again in like twenty minutes.”",
+                                nextNodeId: 'sx_end_recovered',
+                                quality: 'nuanced',
+                                principle: 'Freely Given (Zero Countdown Pressure)',
+                                feedback: "Saying you're not mad is good, though putting a 20-minute timer on 'trying again' can still feel like subtle expectation. Simply letting the night be comfortable without an agenda is best."
+                            }
+                        ]
+                    },
+                    sx3_ignored: {
+                        context: "After a few moments, Alex pushes gently against your shoulder and says quietly, “Please stop, I need to get dressed.”",
+                        speaker: "Alex",
+                        dialogue: "“I’m going to head home tonight.”",
+                        choices: [
+                            {
+                                text: "Stop immediately, step back to give privacy, and apologize sincerely: “I’m so sorry I didn’t pause when you went quiet. Take your time, and I’ll make sure you get home safely.”",
+                                nextNodeId: 'sx_end_learning',
+                                quality: 'nuanced',
+                                principle: 'Accountability After Harm',
+                                feedback: "Stopping immediately and apologizing without excuses is the only appropriate response now, though noticing the freeze cue earlier would have prevented crossing Alex's comfort zone."
+                            },
+                            {
+                                text: "Say: “Come on, don’t leave upset. You said yes earlier, how was I supposed to know?”",
+                                nextNodeId: 'sx_end_learning',
+                                quality: 'poor',
+                                principle: 'Ongoing & Enthusiastic Consent',
+                                feedback: "Blaming a partner for not speaking up sooner ignores non-verbal freeze responses and the responsibility to ensure consent is ongoing."
+                            }
+                        ]
+                    },
+                    sx3_pressured: {
+                        context: "Alex looks up nervously, clearly feeling awkward while you’re still hovering close.",
+                        speaker: "Alex",
+                        dialogue: "“Um... I actually think I want to stop for tonight, sorry.”",
+                        choices: [
+                            {
+                                text: "Move back right away and smile warmly: “Don’t apologize at all! Thank you for telling me. Let’s get cozy and watch something.”",
+                                nextNodeId: 'sx_end_recovered',
+                                quality: 'great',
+                                principle: 'Reversible & Gracious',
+                                feedback: "Great recovery! Giving immediate physical space and warmth removes any lingering guilt."
+                            }
+                        ]
+                    },
+                    sx_end_thriving: {
+                        isEnding: true,
+                        endingType: 'thriving',
+                        context: "You grab two glasses of water and spend the rest of the night talking comfortably. The next morning, Alex texts you saying they’ve never felt more respected or safe with a partner.",
+                        endingSummary: "Sexual consent isn't a one-time checkbox at the start of the night. It is specific to every new step and reversible at any second, including when someone freezes or goes quiet."
+                    },
+                    sx_end_recovered: {
+                        isEnding: true,
+                        endingType: 'thriving',
+                        context: "Because you listened when Alex spoke up and responded without guilt or defensiveness, the awkwardness passed quickly and trust stayed intact.",
+                        endingSummary: "Even when intimacy gets complicated, pausing the moment hesitation appears and accepting a 'stop' with grace protects both partners."
+                    },
+                    sx_end_learning: {
+                        isEnding: true,
+                        endingType: 'learning',
+                        context: "Alex leaves feeling shaken and unheard. When initial consent is treated as a blanket permission slip, ignoring escalation or freeze signals, trust breaks down quickly.",
+                        endingSummary: "Remember: Agreeing to one act doesn't automatically cover the next, and anyone can withdraw consent mid-act. Replay to see how checking in changes everything!"
+                    }
+                }
+            },
+            {
+                id: 'intimate_digital',
+                title: 'Private Photos & Scope of Trust',
+                subtitle: 'Harder: Starts with consensual intimate photos, then tests scope, group chats, and post-breakup boundaries.',
+                category: 'Digital Intimacy • Advanced',
+                difficulty: 'Harder',
+                duration: '4 min',
+                badgeColor: 'bg-amberSoft-100 text-amberSoft-600',
+                iconSvg: `<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>`,
+                startNode: 'id1',
+                nodes: {
+                    id1: {
+                        context: "During a committed relationship, your partner Riley consensually sent you a few intimate photos privately over text, and you both agreed to take a spicy Polaroid or phone photo together just for yourselves. Tonight, you’re hanging out with two close friends who start teasing you that your relationship is 'boring.'",
+                        speaker: "Close Friend",
+                        dialogue: "“Come on, prove you two actually have chemistry. Let us see one picture on your phone, we won’t tell anyone!”",
+                        cue: "Tricky edge case: Riley consented to *you* having the photos, and your friends promise they won't forward or screenshot anything.",
+                        choices: [
+                            {
+                                text: "Keep your phone locked and laugh it off firmly: “Nice try, those are strictly private between Riley and me.”",
+                                nextNodeId: 'id2_protected',
+                                quality: 'great',
+                                principle: 'Specific & Informed Scope of Consent',
+                                feedback: "Spot on! Consent to receive an intimate image is strictly limited to you. Even 'just showing' a screen to a trusted friend without forwarding it violates specific consent."
+                            },
+                            {
+                                text: "Hold your phone in your own hand and briefly flash one cropped photo for two seconds so they can’t screenshot it.",
+                                nextNodeId: 'id2_flashed',
+                                quality: 'poor',
+                                principle: 'Specific Consent (No Third-Party Viewing)',
+                                feedback: "Even holding the phone yourself for two seconds exposes an intimate image to people Riley never consented to let see it."
+                            },
+                            {
+                                text: "Show them a fully clothed cute selfie instead while keeping the intimate album locked.",
+                                nextNodeId: 'id2_selfie_pivot',
+                                quality: 'nuanced',
+                                principle: 'Protecting Intimate Boundaries',
+                                feedback: "Keeping the intimate photos completely private is great! Just make sure even a regular photo is one Riley wouldn't mind friends seeing."
+                            }
+                        ]
+                    },
+                    id2_protected: {
+                        context: "Your friends drop it immediately and respect that you didn't cave. Fast forward six months: you and Riley decide to break up amicably. A week later, while cleaning up your phone storage, you come across those private intimate photos and videos in your hidden folder.",
+                        speaker: "Riley (Text Message)",
+                        dialogue: "“Hey, hope you’re doing okay. Just wanted to check in: since we’re no longer together, could you please delete the private photos I sent you from your phone and cloud backups?”",
+                        cue: "Tricky edge case: The photos were sent 100% consensually during the relationship, and you have no intention of ever sharing them with anyone.",
+                        choices: [
+                            {
+                                text: "Delete them from your camera roll, hidden folder, and cloud trash right away, and reply: “Of course. I just deleted everything permanently, including cloud backups. Wishing you the best.”",
+                                nextNodeId: 'id_end_thriving',
+                                quality: 'great',
+                                principle: 'Reversible & Ongoing Digital Consent',
+                                feedback: "Integrity at its finest! Consent to hold intimate images can be revoked when a relationship ends. Deleting them, including cloud backups, honors ongoing trust."
+                            },
+                            {
+                                text: "Reply “Done!” so Riley feels better, but keep a copy in your private encrypted folder just for personal memories since they were sent consensually.",
+                                nextNodeId: 'id_end_learning',
+                                quality: 'poor',
+                                principle: 'Informed & Reversible Consent',
+                                feedback: "Deceiving a former partner while secretly keeping intimate media after consent has been revoked violates informed and reversible consent."
+                            },
+                            {
+                                text: "Reply: “Why? I’d never show anyone, and you sent them to me willingly when we were dating.”",
+                                nextNodeId: 'id3_pushback',
+                                quality: 'nuanced',
+                                principle: 'Reversible Consent (No Justification Needed)',
+                                feedback: "Even when images were shared willingly in the past, someone has the right to revoke access to their intimate likeness once the relationship ends."
+                            }
+                        ]
+                    },
+                    id2_flashed: {
+                        context: "One friend makes a comment about the photo, and the next day a mutual friend casually mentions it to Riley. Riley calls you feeling deeply betrayed.",
+                        speaker: "Riley",
+                        dialogue: "“I sent those to *you* because I trusted you, not for your friends to look at over your shoulder.”",
+                        choices: [
+                            {
+                                text: "Own it completely without excuses: “You’re 100% right and I’m deeply sorry I broke your trust. I’m deleting them right now if you want, and I will never do that again.”",
+                                nextNodeId: 'id_end_recovered',
+                                quality: 'great',
+                                principle: 'Accountability & Repair',
+                                feedback: "Taking full responsibility without minimizing ('it was only for two seconds!') is the only way to begin repairing broken trust."
+                            },
+                            {
+                                text: "Say: “Relax, I didn’t send it to them, I literally held my phone the whole time!”",
+                                nextNodeId: 'id_end_learning',
+                                quality: 'poor',
+                                principle: 'Specific Consent',
+                                feedback: "Whether forwarded or shown on your screen, sharing intimate images with unconsented viewers crosses the boundary."
+                            }
+                        ]
+                    },
+                    id2_selfie_pivot: {
+                        context: "Your friends laugh and move on. Months later, you and Riley part ways amicably, and Riley texts asking you to delete the private intimate photos you took together during the relationship.",
+                        speaker: "Riley (Text Message)",
+                        dialogue: "“Hey, since we’re moving on, would you mind deleting the private photos we took together? Just want peace of mind.”",
+                        choices: [
+                            {
+                                text: "Delete them everywhere (including Recently Deleted and cloud backups) and confirm kindly: “Already done! Removed from my phone and cloud backups. Take care!”",
+                                nextNodeId: 'id_end_thriving',
+                                quality: 'great',
+                                principle: 'Reversible Consent',
+                                feedback: "Clean, respectful, and thorough. Remembering cloud backups ensures true peace of mind."
+                            },
+                            {
+                                text: "Ask: “Can I keep just the one we took together on my phone? I’m in it too.”",
+                                nextNodeId: 'id3_pushback',
+                                quality: 'nuanced',
+                                principle: 'Mutual & Reversible Consent',
+                                feedback: "When an intimate photo includes both people, both people's ongoing consent matters. Respecting Riley's request to delete it honors their boundary."
+                            }
+                        ]
+                    },
+                    id3_pushback: {
+                        context: "Riley texts back calmly but firmly.",
+                        speaker: "Riley",
+                        dialogue: "“I know you wouldn’t leak them, it just makes me uncomfortable knowing intimate photos of me are still saved now that we’re not together.”",
+                        choices: [
+                            {
+                                text: "“That makes complete sense, and I’m sorry for pushing back. Just deleted them permanently from my phone and cloud.”",
+                                nextNodeId: 'id_end_recovered',
+                                quality: 'great',
+                                principle: 'Reversible & Empathetic',
+                                feedback: "Stepping back, validating their comfort, and deleting the files right away ends the relationship with mutual respect."
+                            },
+                            {
+                                text: "Stop replying and leave the photos saved in your archive.",
+                                nextNodeId: 'id_end_learning',
+                                quality: 'poor',
+                                principle: 'Respecting Revoked Consent',
+                                feedback: "Ignoring a clear request to delete intimate media disregards the other person's ongoing autonomy."
+                            }
+                        ]
+                    },
+                    id_end_thriving: {
+                        isEnding: true,
+                        endingType: 'thriving',
+                        context: "Riley thanks you sincerely, and both during the relationship and after it ends, you proved that trust in your hands is completely safe.",
+                        endingSummary: "Initial consent to receive or take intimate photos is specific to that person and context. It's never for friends to peek at, and it's always reversible if a partner asks you to delete them later."
+                    },
+                    id_end_recovered: {
+                        isEnding: true,
+                        endingType: 'thriving',
+                        context: "Listening without defensiveness and honoring Riley's boundary helped protect their dignity and privacy.",
+                        endingSummary: "True digital consent means respecting both the initial scope of sharing and a person's right to revoke access later."
+                    },
+                    id_end_learning: {
+                        isEnding: true,
+                        endingType: 'learning',
+                        context: "Even though the photos started out 100% consensual, ignoring the limits of that consent, either by showing friends or keeping files after trust was revoked, caused real harm.",
+                        endingSummary: "Consent for intimate media isn't permanent or transferable: it covers only the intended recipient, for as long as mutual consent remains."
+                    }
+                }
+            }
+        ];
+
+        // Application State
+        let state = {
+            view: 'cover', // 'cover' | 'menu' | 'play'
+            activeScenarioId: null,
+            currentNodeId: null,
+            history: [], // Array of { nodeId, choiceIndex, feedback, quality, principle }
+            lastFeedback: null, // Holds feedback object after a choice is made before advancing
+            completedScenarios: JSON.parse(localStorage.getItem('clearAndKind_completed_v2') || '{}')
+        };
+
+        // DOM References
+        const appContainer = document.getElementById('app-container');
+        const headerProgressText = document.getElementById('header-progress-text');
+        const headerProgressBadge = document.getElementById('header-progress-badge');
+        const headerScenariosBtn = document.getElementById('header-scenarios-btn');
+
+        // Initialize App
+        function init() {
+            updateHeaderProgress();
+            render();
+        }
+
+        function saveProgress() {
+            localStorage.setItem('clearAndKind_completed_v2', JSON.stringify(state.completedScenarios));
+            updateHeaderProgress();
+        }
+
+        function updateHeaderProgress() {
+            const passedCount = Object.values(state.completedScenarios).filter(c => c.endingType === 'thriving').length;
+            headerProgressText.textContent = `${passedCount}/${SCENARIOS.length} Passed`;
+            headerProgressBadge.classList.remove('hidden');
+        }
+
+        function resetAllProgress() {
+            state.completedScenarios = {};
+            saveProgress();
+            navigateToCover();
+        }
+
+        // Navigation Functions
+        function navigateToCover() {
+            state.view = 'cover';
+            state.activeScenarioId = null;
+            state.currentNodeId = null;
+            state.history = [];
+            state.lastFeedback = null;
+            render();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function navigateToMenu() {
+            state.view = 'menu';
+            state.activeScenarioId = null;
+            state.currentNodeId = null;
+            state.history = [];
+            state.lastFeedback = null;
+            render();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function startScenario(scenarioId) {
+            const scenario = SCENARIOS.find(s => s.id === scenarioId);
+            if (!scenario) return;
+
+            state.view = 'play';
+            state.activeScenarioId = scenarioId;
+            state.currentNodeId = scenario.startNode;
+            state.history = [];
+            state.lastFeedback = null;
+            render();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function handleChoice(choiceIndex) {
+            const scenario = SCENARIOS.find(s => s.id === state.activeScenarioId);
+            const currentNode = scenario.nodes[state.currentNodeId];
+            const choice = currentNode.choices[choiceIndex];
+
+            // Record feedback so user sees immediate reflection before moving on
+            state.lastFeedback = {
+                chosenText: choice.text,
+                nextNodeId: choice.nextNodeId,
+                quality: choice.quality,
+                principle: choice.principle,
+                feedback: choice.feedback
+            };
+
+            state.history.push({
+                nodeId: state.currentNodeId,
+                choiceIndex,
+                quality: choice.quality,
+                principle: choice.principle
+            });
+
+            render();
+        }
+
+        function continueStory() {
+            if (!state.lastFeedback) return;
+            const nextId = state.lastFeedback.nextNodeId;
+            state.currentNodeId = nextId;
+            state.lastFeedback = null;
+
+            const scenario = SCENARIOS.find(s => s.id === state.activeScenarioId);
+            const nextNode = scenario.nodes[nextId];
+
+            if (nextNode && nextNode.isEnding) {
+                state.completedScenarios[scenario.id] = {
+                    endingType: nextNode.endingType,
+                    completedAt: Date.now()
+                };
+                saveProgress();
+            }
+
+            render();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function stepBack() {
+            if (state.lastFeedback) {
+                // Undo the unconfirmed choice
+                state.history.pop();
+                state.lastFeedback = null;
+                render();
+                return;
+            }
+
+            if (state.history.length > 0) {
+                const prev = state.history.pop();
+                state.currentNodeId = prev.nodeId;
+                state.lastFeedback = null;
+                render();
+            }
+        }
+
+        // Modal Controls
+        function openGuideModal() {
+            const modal = document.getElementById('guide-modal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function closeGuideModal() {
+            const modal = document.getElementById('guide-modal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        // Close modal on backdrop click or Escape key
+        document.getElementById('guide-modal').addEventListener('click', (e) => {
+            if (e.target.id === 'guide-modal') closeGuideModal();
+        });
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeGuideModal();
+        });
+
+        // Main Render Router
+        function render() {
+            if (state.view === 'cover') {
+                headerScenariosBtn.classList.add('hidden');
+                renderCoverPage();
+            } else if (state.view === 'menu') {
+                headerScenariosBtn.classList.add('hidden');
+                renderMenu();
+            } else if (state.view === 'play') {
+                headerScenariosBtn.classList.remove('hidden');
+                renderScenarioPlay();
+            }
+        }
+
+        // Render 0: Cover Page ("The Consent Game")
+        function renderCoverPage() {
+            appContainer.innerHTML = `
+                <div class="min-h-[68vh] flex flex-col items-center justify-center text-center px-2 py-8 fade-in">
+                    <div class="max-w-xl w-full bg-white rounded-3xl border border-warm-200/90 p-10 sm:p-14 shadow-sm">
+                        <h1 class="font-display font-extrabold text-3xl sm:text-5xl text-warm-900 tracking-tight leading-[1.15] mb-4">
+                            The Consent Game
+                        </h1>
+
+                        <p class="text-base sm:text-xl text-warm-800/80 leading-relaxed mb-9">
+                            Will you pass the consent game?
+                        </p>
+
+                        <button onclick="navigateToMenu()" class="w-full sm:w-auto min-w-[210px] py-4 px-8 rounded-2xl bg-sage-600 hover:bg-sage-700 text-white font-display font-bold text-base sm:text-lg shadow-sm hover:shadow-md inline-flex items-center justify-center gap-2.5 transition-all active:scale-[0.99]">
+                            <span>Continue</span>
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Render 1: Scenario Selection Home Menu (5 Scenarios)
+        function renderMenu() {
+            const passedCount = Object.values(state.completedScenarios).filter(c => c.endingType === 'thriving').length;
+            const allPassed = passedCount === SCENARIOS.length;
+
+            let completionBannerHtml = '';
+            if (allPassed) {
+                completionBannerHtml = `
+                    <div class="mb-8 p-6 rounded-2xl bg-sage-600 text-white shadow-md flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 fade-in">
+                        <div class="space-y-1">
+                            <div class="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-sage-100">
+                                <span>★ 5/5 Scenarios Passed</span>
+                            </div>
+                            <h2 class="font-display font-bold text-xl">You Passed the Consent Game!</h2>
+                            <p class="text-sm text-sage-100 max-w-xl">You navigated all 5 scenarios, including the advanced shifting-boundary challenges, with clear and respectful communication. Replay any scenario anytime to explore other paths.</p>
+                        </div>
+                        <button onclick="openGuideModal()" class="shrink-0 px-4 py-2.5 rounded-xl bg-white text-sage-700 font-semibold text-sm hover:bg-sage-50 transition-colors shadow-xs">
+                            Review FRIES Guide
+                        </button>
+                    </div>
+                `;
+            }
+
+            const cardsHtml = SCENARIOS.map((scenario, idx) => {
+                const completionData = state.completedScenarios[scenario.id];
+                const isDone = Boolean(completionData);
+                const isPassed = isDone && completionData.endingType === 'thriving';
+                const isHarder = scenario.difficulty === 'Harder';
+
+                return `
+                    <div class="group bg-white rounded-2xl border ${isHarder ? 'border-terracotta-500/30' : 'border-warm-200/90'} p-6 shadow-xs hover:shadow-md hover:border-sage-500/40 transition-all flex flex-col justify-between fade-in" style="animation-delay: ${idx * 55}ms">
+                        <div>
+                            <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
+                                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${scenario.badgeColor}">
+                                    ${scenario.category}
+                                </span>
+                                ${isPassed ? `
+                                    <span class="inline-flex items-center gap-1 text-xs font-semibold text-sage-700 bg-sage-50 px-2.5 py-1 rounded-full border border-sage-200">
+                                        <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
+                                        Passed
+                                    </span>
+                                ` : isDone ? `
+                                    <span class="inline-flex items-center gap-1 text-xs font-semibold text-amberSoft-600 bg-amberSoft-50 px-2.5 py-1 rounded-full border border-amberSoft-100">
+                                        ↻ Try Again
+                                    </span>
+                                ` : `
+                                    <span class="text-xs text-warm-800/60 font-medium">${scenario.duration}</span>
+                                `}
+                            </div>
+
+                            <div class="w-11 h-11 rounded-xl ${isHarder ? 'bg-terracotta-50 text-terracotta-600' : 'bg-warm-100 text-warm-900'} flex items-center justify-center mb-4 group-hover:bg-sage-50 group-hover:text-sage-600 transition-colors">
+                                ${scenario.iconSvg}
+                            </div>
+
+                            <h3 class="font-display font-bold text-xl text-warm-900 mb-2 group-hover:text-sage-700 transition-colors">
+                                ${idx + 1}. ${scenario.title}
+                            </h3>
+                            <p class="text-sm text-warm-800/80 leading-relaxed mb-6">
+                                ${scenario.subtitle}
+                            </p>
+                        </div>
+
+                        <button onclick="startScenario('${scenario.id}')" class="w-full py-3 px-4 rounded-xl ${isPassed ? 'bg-warm-100 hover:bg-warm-200/80 text-warm-900' : isHarder ? 'bg-warm-900 hover:bg-warm-800 text-white' : 'bg-sage-600 hover:bg-sage-700 text-white'} font-semibold text-sm flex items-center justify-center gap-2 transition-all active:scale-[0.99]">
+                            <span>${isPassed ? 'Replay Scenario' : isDone ? 'Retry Scenario' : isHarder ? 'Take Harder Challenge' : 'Start Scenario'}</span>
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+                            </svg>
+                        </button>
+                    </div>
+                `;
+            }).join('');
+
+            appContainer.innerHTML = `
+                <div class="fade-in">
+                    <!-- Top Back to Cover Link -->
+                    <div class="mb-4">
+                        <button onclick="navigateToCover()" class="inline-flex items-center gap-1.5 text-xs sm:text-sm font-medium text-warm-800/75 hover:text-warm-900 transition-colors">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+                            <span>Cover Page</span>
+                        </button>
+                    </div>
+
+                    <!-- Scenario Page Header -->
+                    <div class="max-w-2xl mb-9">
+                        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-sage-50 border border-sage-200/80 text-sage-700 text-xs font-semibold mb-3">
+                            <span>Scenario Page</span>
+                            <span>•</span>
+                            <span>${passedCount} of ${SCENARIOS.length} Passed</span>
+                        </div>
+                        <h1 class="font-display font-extrabold text-3xl sm:text-4xl text-warm-900 tracking-tight leading-tight mb-3">
+                            Choose a Scenario
+                        </h1>
+                        <p class="text-base sm:text-lg text-warm-800/80 leading-relaxed">
+                            Explore different situations where consent might appear!
+                        </p>
+                    </div>
+
+                    ${completionBannerHtml}
+
+                    <!-- 5 Scenario Cards Grid -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        ${cardsHtml}
+                    </div>
+
+                    <!-- FRIES Mini Callout Strip -->
+                    <div class="mt-10 p-5 sm:p-6 rounded-2xl bg-warm-100/80 border border-warm-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                        <div class="flex items-start gap-3.5">
+                            <div class="w-10 h-10 rounded-xl bg-white border border-warm-200 text-sage-600 flex items-center justify-center shrink-0 mt-0.5">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            </div>
+                            <div>
+                                <h2 class="font-display font-bold text-warm-900 text-base">Need a quick refresher on the FRIES Model?</h2>
+                                <p class="text-xs sm:text-sm text-warm-800/80 mt-0.5">Consent is <strong>F</strong>reely given, <strong>R</strong>eversible, <strong>I</strong>nformed, <strong>E</strong>nthusiastic, and <strong>S</strong>pecific.</p>
+                            </div>
+                        </div>
+                        <button onclick="openGuideModal()" class="shrink-0 px-4 py-2 rounded-xl bg-white hover:bg-warm-50 text-warm-900 border border-warm-200 text-xs sm:text-sm font-semibold transition-colors">
+                            Open Quick Guide
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Render 2: Active Scenario Gameplay & Branching Feedback
+        function renderScenarioPlay() {
+            const scenario = SCENARIOS.find(s => s.id === state.activeScenarioId);
+            const node = scenario.nodes[state.currentNodeId];
+            const stepNumber = state.history.length + (state.lastFeedback ? 0 : 1);
+
+            // Top Breadcrumb & Back Control
+            const topControlsHtml = `
+                <div class="flex items-center justify-between gap-4 mb-6">
+                    <button onclick="navigateToMenu()" class="inline-flex items-center gap-1.5 text-sm font-medium text-warm-800/80 hover:text-warm-900 transition-colors">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+                        <span>All Scenarios</span>
+                    </button>
+
+                    <div class="flex items-center gap-2">
+                        <span class="px-3 py-1 rounded-full text-xs font-semibold ${scenario.badgeColor}">
+                            ${scenario.category}
+                        </span>
+                        ${!node.isEnding ? `
+                            <span class="text-xs font-semibold text-warm-800/70 bg-warm-100 px-2.5 py-1 rounded-full">
+                                Moment ${stepNumber}
+                            </span>
+                        ` : ''}
+                    </div>
+                </div>
+            `;
+
+            // If Terminal Ending Node
+            if (node.isEnding) {
+                const isThriving = node.endingType === 'thriving';
+                const greatChoices = state.history.filter(h => h.quality === 'great').length;
+
+                appContainer.innerHTML = `
+                    <div class="max-w-2xl mx-auto fade-in">
+                        ${topControlsHtml}
+
+                        <div class="bg-white rounded-3xl border border-warm-200 shadow-sm overflow-hidden">
+                            <!-- Ending Banner -->
+                            <div class="p-6 sm:p-8 ${isThriving ? 'bg-sage-50 border-b border-sage-100' : 'bg-amberSoft-50 border-b border-amberSoft-100'}">
+                                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider mb-3 ${isThriving ? 'bg-sage-600 text-white' : 'bg-amberSoft-600 text-white'}">
+                                    ${isThriving ? '✓ Healthy Outcome' : '↻ Reflection Moment'}
+                                </div>
+                                <h2 class="font-display font-extrabold text-2xl sm:text-3xl text-warm-900 mb-3">
+                                    ${isThriving ? 'Mutual Respect & Trust Built' : 'A Chance to Rethink & Try Again'}
+                                </h2>
+                                <p class="text-base text-warm-800 leading-relaxed">
+                                    ${node.context}
+                                </p>
+                            </div>
+
+                            <!-- Key Takeaway Box -->
+                            <div class="p-6 sm:p-8 space-y-6">
+                                <div class="p-5 rounded-2xl bg-warm-50 border border-warm-200">
+                                    <h3 class="font-display font-bold text-sm uppercase tracking-wider text-warm-800/70 mb-1.5">Key Takeaway</h3>
+                                    <p class="text-sm sm:text-base text-warm-900 font-medium leading-relaxed">
+                                        ${node.endingSummary}
+                                    </p>
+                                </div>
+
+                                <!-- Path Recap Pills -->
+                                <div>
+                                    <div class="flex items-center justify-between text-xs text-warm-800/70 mb-2.5">
+                                        <span class="font-semibold">Your Path Recap (${state.history.length} decisions)</span>
+                                        <span>${greatChoices} supportive choice${greatChoices === 1 ? '' : 's'}</span>
+                                    </div>
+                                    <div class="flex flex-wrap gap-2">
+                                        ${state.history.map((item, i) => {
+                    const pillStyle = item.quality === 'great'
+                        ? 'bg-sage-50 text-sage-700 border-sage-200'
+                        : item.quality === 'nuanced'
+                            ? 'bg-amberSoft-50 text-amberSoft-600 border-amberSoft-100'
+                            : 'bg-terracotta-50 text-terracotta-600 border-terracotta-100';
+                    return `
+                                                <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-medium ${pillStyle}">
+                                                    <span>${i + 1}. ${item.principle}</span>
+                                                </span>
+                                            `;
+                }).join('')}
+                                    </div>
+                                </div>
+
+                                <!-- Ending Action Buttons -->
+                                <div class="pt-2 flex flex-col sm:flex-row gap-3">
+                                    <button onclick="startScenario('${scenario.id}')" class="flex-1 py-3 px-4 rounded-xl bg-white hover:bg-warm-100 text-warm-900 border border-warm-200 font-semibold text-sm flex items-center justify-center gap-2 transition-colors">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                                        <span>Explore Different Paths</span>
+                                    </button>
+                                    <button onclick="navigateToMenu()" class="flex-1 py-3 px-4 rounded-xl bg-sage-600 hover:bg-sage-700 text-white font-semibold text-sm flex items-center justify-center gap-2 transition-colors shadow-xs">
+                                        <span>Choose Next Scenario</span>
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+
+            // Active Story Scene Card
+            let interactionAreaHtml = '';
+
+            if (state.lastFeedback) {
+                // Show Real-Time Educational Feedback Card
+                const fb = state.lastFeedback;
+                const styles = fb.quality === 'great'
+                    ? {
+                        wrapper: 'bg-sage-50 border-sage-200',
+                        badge: 'bg-sage-600 text-white',
+                        label: 'Supports Enthusiastic Consent',
+                        titleColor: 'text-sage-700'
+                    }
+                    : fb.quality === 'nuanced'
+                        ? {
+                            wrapper: 'bg-amberSoft-50 border-amberSoft-100',
+                            badge: 'bg-amberSoft-600 text-white',
+                            label: 'Good Intent • Room to Make It Easier',
+                            titleColor: 'text-amberSoft-600'
+                        }
+                        : {
+                            wrapper: 'bg-terracotta-50 border-terracotta-100',
+                            badge: 'bg-terracotta-600 text-white',
+                            label: 'Creates Pressure or Friction',
+                            titleColor: 'text-terracotta-600'
+                        };
+
+                interactionAreaHtml = `
+                    <div class="mt-6 p-5 sm:p-6 rounded-2xl border ${styles.wrapper} fade-in">
+                        <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+                            <span class="px-2.5 py-1 rounded-lg text-xs font-bold ${styles.badge}">
+                                ${styles.label}
+                            </span>
+                            <span class="text-xs font-semibold ${styles.titleColor}">
+                                Principle: ${fb.principle}
+                            </span>
+                        </div>
+
+                        <p class="text-xs text-warm-800/75 italic mb-3 border-l-2 border-warm-300 pl-3">
+                            You chose: “${fb.chosenText}”
+                        </p>
+
+                        <p class="text-sm sm:text-base text-warm-900 leading-relaxed mb-5">
+                            ${fb.feedback}
+                        </p>
+
+                        <div class="flex flex-col sm:flex-row items-center justify-between gap-3 pt-2 border-t border-warm-200/60">
+                            <button onclick="stepBack()" class="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-white/80 hover:bg-white text-warm-800 border border-warm-200 text-xs sm:text-sm font-semibold transition-colors">
+                                ← Try a Different Response
+                            </button>
+                            <button onclick="continueStory()" class="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-warm-900 hover:bg-warm-800 text-white text-sm font-semibold flex items-center justify-center gap-2 transition-colors shadow-xs">
+                                <span>See How They Respond</span>
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            } else {
+                // Show Decision Choices
+                interactionAreaHtml = `
+                    <div class="mt-6 space-y-3">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-bold uppercase tracking-wider text-warm-800/60">How do you respond?</span>
+                            ${state.history.length > 0 ? `
+                                <button onclick="stepBack()" class="text-xs font-medium text-warm-800/70 hover:text-warm-900 underline">
+                                    ← Undo previous choice
+                                </button>
+                            ` : ''}
+                        </div>
+
+                        <div class="space-y-3">
+                            ${node.choices.map((choice, idx) => `
+                                <button onclick="handleChoice(${idx})" class="w-full text-left p-4 sm:p-5 rounded-2xl bg-warm-50/70 hover:bg-sage-50/80 border border-warm-200 hover:border-sage-500/50 transition-all group flex items-start gap-3.5 active:scale-[0.995]">
+                                    <span class="w-7 h-7 rounded-lg bg-white border border-warm-200 group-hover:bg-sage-600 group-hover:text-white group-hover:border-sage-600 text-warm-800 font-display font-bold text-xs flex items-center justify-center shrink-0 mt-0.5 transition-colors">
+                                        ${String.fromCharCode(65 + idx)}
+                                    </span>
+                                    <span class="text-sm sm:text-base text-warm-900 font-medium leading-snug">
+                                        ${choice.text}
+                                    </span>
+                                </button>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            }
+
+            appContainer.innerHTML = `
+                <div class="max-w-2xl mx-auto fade-in">
+                    ${topControlsHtml}
+
+                    <div class="bg-white rounded-3xl border border-warm-200 p-6 sm:p-8 shadow-xs">
+                        <h2 class="font-display font-bold text-xl text-warm-900 mb-4">${scenario.title}</h2>
+
+                        <!-- Narrative Context -->
+                        <p class="text-base sm:text-lg text-warm-800 leading-relaxed mb-5">
+                            ${node.context}
+                        </p>
+
+                        <!-- Character Dialogue Bubble -->
+                        ${node.dialogue ? `
+                            <div class="p-4 sm:p-5 rounded-2xl bg-warm-100/90 border border-warm-200/80 mb-4">
+                                <div class="text-xs font-bold uppercase tracking-wider text-sage-700 mb-1">
+                                    ${node.speaker}
+                                </div>
+                                <p class="font-display font-semibold text-base sm:text-lg text-warm-900">
+                                    ${node.dialogue}
+                                </p>
+                            </div>
+                        ` : ''}
+
+                        <!-- Non-Verbal / Social Cue Callout -->
+                        ${node.cue ? `
+                            <div class="flex items-start gap-2.5 px-4 py-3 rounded-xl bg-amberSoft-50/80 border border-amberSoft-100 text-xs sm:text-sm text-warm-800">
+                                <svg class="w-4 h-4 text-amberSoft-600 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                                <span>${node.cue}</span>
+                            </div>
+                        ` : ''}
+
+                        ${interactionAreaHtml}
+                    </div>
+                </div>
+            `;
+        }
+
+        // Start on load
+        window.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+
+</html>
